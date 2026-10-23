@@ -14,7 +14,7 @@ import com.soulmatch.backend.users.User;
 import com.soulmatch.backend.users.UserRepository;
 import com.soulmatch.backend.users.UserRole;
 import com.soulmatch.backend.users.UserStatus;
-
+import com.soulmatch.backend.security.JwtService;
 @Service
 public class AuthService {
 
