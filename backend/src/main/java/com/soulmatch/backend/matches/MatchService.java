@@ -91,6 +91,60 @@ public class MatchService {
         return MatchResponse.fromEntity(savedMatch);
     }
 
+
+
+
+
+
+public MatchResponse createMatch(CreateMatchRequest request) {
+    if (request == null
+            || request.userOneId() == null
+            || request.userTwoId() == null) {
+        throw new IllegalArgumentException(
+                "Los identificadores de ambos usuarios son obligatorios."
+        );
+    }
+
+    if (request.userOneId().equals(request.userTwoId())) {
+        throw new IllegalArgumentException(
+                "Un usuario no puede crear un match consigo mismo."
+        );
+    }
+
+    User currentUser = getAuthenticatedUser();
+
+    // Evita que el usuario autenticado cree matches
+    // utilizando la identidad de otra persona.
+    if (!currentUser.getId().equals(request.userOneId())
+            && !currentUser.getId().equals(request.userTwoId())) {
+        throw new org.springframework.security.access.AccessDeniedException(
+                "Debes ser uno de los participantes del match."
+        );
+    }
+
+    User userOne = userRepository.findById(request.userOneId())
+            .orElseThrow(() -> new IllegalArgumentException(
+                    "No se encontró el primer usuario."
+            ));
+
+    User userTwo = userRepository.findById(request.userTwoId())
+            .orElseThrow(() -> new IllegalArgumentException(
+                    "No se encontró el segundo usuario."
+            ));
+
+    Match match = new Match(userOne, userTwo);
+    match.setStatus("ACTIVE");
+
+    Match savedMatch = matchRepository.save(match);
+
+    return MatchResponse.fromEntity(savedMatch);
+}
+
+
+
+
+
+
     /**
      * Obtiene el usuario autenticado a partir de su correo.
      */
